@@ -22,93 +22,92 @@ using Grpc.Core;
 using Grpc.Net.Client.Balancer;
 using Grpc.Net.Client.Configuration;
 
-namespace Frontend.Balancer
+namespace Frontend.Balancer;
+
+public class ConfigurableResolverFactory : ResolverFactory
 {
-    public class ConfigurableResolverFactory : ResolverFactory
+    private readonly ResolverFactory _innerResolverFactory;
+    private readonly BalancerConfiguration _balancerConfiguration;
+
+    public ConfigurableResolverFactory(ResolverFactory innerResolverFactory, BalancerConfiguration balancerConfiguration)
     {
-        private readonly ResolverFactory _innerResolverFactory;
+        _innerResolverFactory = innerResolverFactory;
+        _balancerConfiguration = balancerConfiguration;
+    }
+
+    public override string Name => _innerResolverFactory.Name;
+
+    public override Resolver Create(ResolverOptions options)
+    {
+        return new ConfigurableResolver(_innerResolverFactory.Create(options), _balancerConfiguration);
+    }
+
+    private class ConfigurableResolver : Resolver
+    {
+        private readonly Resolver _innerResolver;
         private readonly BalancerConfiguration _balancerConfiguration;
 
-        public ConfigurableResolverFactory(ResolverFactory innerResolverFactory, BalancerConfiguration balancerConfiguration)
+        private ResolverResult? _lastResult;
+        private Action<ResolverResult>? _listener;
+
+        public ConfigurableResolver(Resolver innerResolver, BalancerConfiguration balancerConfiguration)
         {
-            _innerResolverFactory = innerResolverFactory;
+            _innerResolver = innerResolver;
             _balancerConfiguration = balancerConfiguration;
+            _balancerConfiguration.Updated += OnConfigurationUpdated;
         }
 
-        public override string Name => _innerResolverFactory.Name;
-
-        public override Resolver Create(ResolverOptions options)
+        public override void Start(Action<ResolverResult> listener)
         {
-            return new ConfigurableResolver(_innerResolverFactory.Create(options), _balancerConfiguration);
+            _listener = listener;
+            _innerResolver.Start(result =>
+            {
+                _lastResult = result;
+
+                RaiseResult(result);
+            });
         }
 
-        private class ConfigurableResolver : Resolver
+        public override void Refresh()
         {
-            private readonly Resolver _innerResolver;
-            private readonly BalancerConfiguration _balancerConfiguration;
+            _innerResolver.Refresh();
+        }
 
-            private ResolverResult? _lastResult;
-            private Action<ResolverResult>? _listener;
-
-            public ConfigurableResolver(Resolver innerResolver, BalancerConfiguration balancerConfiguration)
+        private void OnConfigurationUpdated(object? sender, EventArgs e)
+        {
+            // Can't just call RefreshAsync and get new results because of rate limiting.
+            if (_lastResult != null)
             {
-                _innerResolver = innerResolver;
-                _balancerConfiguration = balancerConfiguration;
-                _balancerConfiguration.Updated += OnConfigurationUpdated;
+                RaiseResult(_lastResult);
             }
+        }
 
-            public override void Start(Action<ResolverResult> listener)
+        private void RaiseResult(ResolverResult result)
+        {
+            if (_listener != null)
             {
-                _listener = listener;
-                _innerResolver.Start(result =>
+                if (result.Addresses != null)
                 {
-                    _lastResult = result;
+                    var policyName = _balancerConfiguration.LoadBalancerPolicyName switch
+                    {
+                        LoadBalancerName.PickFirst => "pick_first",
+                        LoadBalancerName.RoundRobin => "round_robin",
+                        _ => throw new InvalidOperationException("Unexpected load balancer.")
+                    };
 
-                    RaiseResult(result);
-                });
-            }
+                    var serviceConfig = new ServiceConfig
+                    {
+                        LoadBalancingConfigs = { new LoadBalancingConfig(policyName) }
+                    };
 
-            public override void Refresh()
-            {
-                _innerResolver.Refresh();
-            }
-
-            private void OnConfigurationUpdated(object? sender, EventArgs e)
-            {
-                // Can't just call RefreshAsync and get new results because of rate limiting.
-                if (_lastResult != null)
-                {
-                    RaiseResult(_lastResult);
+                    // DNS results change order between refreshes.
+                    // Explicitly order by host to keep result order consistent.
+                    var orderedAddresses = result.Addresses.OrderBy(a => a.EndPoint.Host).ToList();
+                    _listener(ResolverResult.ForResult(orderedAddresses, serviceConfig, Status.DefaultSuccess));
                 }
-            }
-
-            private void RaiseResult(ResolverResult result)
-            {
-                if (_listener != null)
+                else
                 {
-                    if (result.Addresses != null)
-                    {
-                        var policyName = _balancerConfiguration.LoadBalancerPolicyName switch
-                        {
-                            LoadBalancerName.PickFirst => "pick_first",
-                            LoadBalancerName.RoundRobin => "round_robin",
-                            _ => throw new InvalidOperationException("Unexpected load balancer.")
-                        };
-
-                        var serviceConfig = new ServiceConfig
-                        {
-                            LoadBalancingConfigs = { new LoadBalancingConfig(policyName) }
-                        };
-
-                        // DNS results change order between refreshes.
-                        // Explicitly order by host to keep result order consistent.
-                        var orderedAddresses = result.Addresses.OrderBy(a => a.EndPoint.Host).ToList();
-                        _listener(ResolverResult.ForResult(orderedAddresses, serviceConfig, Status.DefaultSuccess));
-                    }
-                    else
-                    {
-                        _listener(ResolverResult.ForFailure(result.Status));
-                    }
+                    _listener(ResolverResult.ForFailure(result.Status));
                 }
             }
         }

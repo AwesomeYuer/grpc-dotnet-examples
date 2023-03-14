@@ -20,30 +20,29 @@ using System;
 using Grpc.Net.Client.Balancer;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Frontend.Balancer
+namespace Frontend.Balancer;
+
+public static class ReportingSetup
 {
-    public static class ReportingSetup
+    public static void RegisterReportingServices(IServiceCollection services)
     {
-        public static void RegisterReportingServices(IServiceCollection services)
+        // These services allow the load balancer policy to be configured and subchannels to be reported in the UI.
+        services.AddSingleton<SubchannelReporter>();
+        services.AddSingleton<BalancerConfiguration>();
+        services.AddSingleton<ResolverFactory>(s =>
         {
-            // These services allow the load balancer policy to be configured and subchannels to be reported in the UI.
-            services.AddSingleton<SubchannelReporter>();
-            services.AddSingleton<BalancerConfiguration>();
-            services.AddSingleton<ResolverFactory>(s =>
-            {
-                var inner = new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(20));
-                return new ConfigurableResolverFactory(inner, s.GetRequiredService<BalancerConfiguration>());
-            });
-            services.AddSingleton<LoadBalancerFactory>(s =>
-            {
-                var inner = new RoundRobinBalancerFactory();
-                return new ReportingLoadBalancerFactory(inner, s.GetRequiredService<SubchannelReporter>());
-            });
-            services.AddSingleton<LoadBalancerFactory>(s =>
-            {
-                var inner = new PickFirstBalancerFactory();
-                return new ReportingLoadBalancerFactory(inner, s.GetRequiredService<SubchannelReporter>());
-            });
-        }
+            var inner = new DnsResolverFactory(refreshInterval: TimeSpan.FromSeconds(20));
+            return new ConfigurableResolverFactory(inner, s.GetRequiredService<BalancerConfiguration>());
+        });
+        services.AddSingleton<LoadBalancerFactory>(s =>
+        {
+            var inner = new RoundRobinBalancerFactory();
+            return new ReportingLoadBalancerFactory(inner, s.GetRequiredService<SubchannelReporter>());
+        });
+        services.AddSingleton<LoadBalancerFactory>(s =>
+        {
+            var inner = new PickFirstBalancerFactory();
+            return new ReportingLoadBalancerFactory(inner, s.GetRequiredService<SubchannelReporter>());
+        });
     }
 }
