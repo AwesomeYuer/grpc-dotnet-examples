@@ -1,4 +1,4 @@
-﻿#region Copyright notice and license
+#region Copyright notice and license
 
 // Copyright 2019 The gRPC Authors
 //
@@ -16,29 +16,26 @@
 
 #endregion
 
-using System;
+namespace Common;
 
-namespace Common
+// Protobuf messages can optional be extended with partial classes
+public partial class Name
 {
-    // Protobuf messages can optional be extended with partial classes
-    public partial class Name
+    public static Name Parse(string name)
     {
-        public static Name Parse(string name)
+        var parts = name.Split(' ');
+        if (parts.Length != 3)
         {
-            var parts = name.Split(' ');
-            if (parts.Length != 3)
-            {
-                throw new ArgumentException("Name must have three parts.");
-            }
-
-            return new Name
-            {
-                FirstName = parts[0],
-                MiddleName = parts[1],
-                LastName = parts[2]
-            };
+            throw new ArgumentException("Name must have three parts.");
         }
 
-        public string FullName => string.Join(" ", FirstName, MiddleName, LastName);
+        return new Name
+        {
+            FirstName = parts[0],
+            MiddleName = parts[1],
+            LastName = parts[2],
+        };
     }
+
+    public string FullName => string.Join(" ", FirstName, MiddleName, LastName);
 }
