@@ -23,10 +23,12 @@ using Grpc.Net.Client;
 
 Console.WriteLine("Target framework name: " + AppDomain.CurrentDomain.SetupInformation.TargetFrameworkName);
 
+#pragma warning disable CA1416 // Validate platform compatibility
 using var channel = GrpcChannel.ForAddress("https://localhost:5001", new GrpcChannelOptions
 {
     HttpHandler = new WinHttpHandler()
 });
+#pragma warning restore CA1416 // Validate platform compatibility
 var client = new Greeter.GreeterClient(channel);
 
 var reply = await client.SayHelloAsync(new HelloRequest { Name = "GreeterClient" });

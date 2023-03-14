@@ -19,37 +19,36 @@
 using Greet;
 using Grpc.Core;
 
-namespace Server
+namespace Server;
+
+public class GreeterService : Greeter.GreeterBase
 {
-    public class GreeterService : Greeter.GreeterBase
+    private readonly ILogger _logger;
+
+    public GreeterService(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        _logger = loggerFactory.CreateLogger<GreeterService>();
+    }
 
-        public GreeterService(ILoggerFactory loggerFactory)
+    public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation($"Sending hello to {request.Name}");
+        return Task.FromResult(new HelloReply { Message = $"Hello {request.Name}" });
+    }
+
+    public override async Task SayHelloStream(HelloRequestCount request, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
+    {
+        if (request.Count <= 0)
         {
-            _logger = loggerFactory.CreateLogger<GreeterService>();
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "Count must be greater than zero."));
         }
 
-        public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+        _logger.LogInformation($"Sending {request.Count} hellos to {request.Name}");
+
+        for (var i = 0; i < request.Count; i++)
         {
-            _logger.LogInformation($"Sending hello to {request.Name}");
-            return Task.FromResult(new HelloReply { Message = $"Hello {request.Name}" });
-        }
-
-        public override async Task SayHelloStream(HelloRequestCount request, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
-        {
-            if (request.Count <= 0)
-            {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, "Count must be greater than zero."));
-            }
-
-            _logger.LogInformation($"Sending {request.Count} hellos to {request.Name}");
-
-            for (var i = 0; i < request.Count; i++)
-            {
-                await responseStream.WriteAsync(new HelloReply { Message = $"Hello {request.Name} {i + 1}" });
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
+            await responseStream.WriteAsync(new HelloReply { Message = $"Hello {request.Name} {i + 1}" });
+            await Task.Delay(TimeSpan.FromSeconds(1));
         }
     }
 }
