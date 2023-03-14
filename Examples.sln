@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00.props", "00.props", "{814C7BD4-6F62-482F-BBC9-8C5B524DD01D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "10.props", "10.props", "{814C7BD4-6F62-482F-BBC9-8C5B524DD01D}"
 	ProjectSection(SolutionItems) = preProject
 		dependencies.props = dependencies.props
 		Directory.Build.props = Directory.Build.props
@@ -178,6 +178,20 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Liber\Common\Common.csproj", "{10485634-4224-4FFD-B01C-8D0208C008A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Liber\Server\Server.csproj", "{3BF94822-225B-4D4A-B356-90623949158B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00.Solution Items", "00.Solution Items", "{B1F12538-A6F9-4466-94EA-289A2BC18C6A}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		AUTHORS = AUTHORS
+		CODE-OF-CONDUCT.md = CODE-OF-CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		GOVERNANCE.md = GOVERNANCE.md
+		MAINTAINERS.md = MAINTAINERS.md
+		microsoft-support.md = microsoft-support.md
+		README.md = README.md
+		TROUBLESHOOTING.md = TROUBLESHOOTING.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

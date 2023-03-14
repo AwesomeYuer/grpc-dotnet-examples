@@ -16,8 +16,6 @@
 
 #endregion
 
-using System;
-using System.IO;
 using Download;
 using Grpc.Core;
 using Grpc.Net.Client;

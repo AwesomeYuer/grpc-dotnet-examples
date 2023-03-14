@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using Grpc.Net.Client;
 using ProtoBuf.Grpc.Client;
 using Shared;

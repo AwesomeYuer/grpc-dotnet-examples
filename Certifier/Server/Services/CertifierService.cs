@@ -16,8 +16,6 @@
 
 #endregion
 
-using System.Linq;
-using System.Threading.Tasks;
 using Certify;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;

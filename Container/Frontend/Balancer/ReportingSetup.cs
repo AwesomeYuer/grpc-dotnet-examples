@@ -16,9 +16,7 @@
 
 #endregion
 
-using System;
 using Grpc.Net.Client.Balancer;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Frontend.Balancer;
 

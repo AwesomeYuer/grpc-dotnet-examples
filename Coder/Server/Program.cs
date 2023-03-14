@@ -16,8 +16,6 @@
 
 #endregion
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using ProtoBuf.Grpc.Server;
 using Server;
 

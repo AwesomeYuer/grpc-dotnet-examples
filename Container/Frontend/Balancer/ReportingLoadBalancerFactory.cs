@@ -16,7 +16,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using Grpc.Net.Client.Balancer;
 
 namespace Frontend.Balancer

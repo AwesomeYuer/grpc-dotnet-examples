@@ -16,8 +16,6 @@
 
 #endregion
 
-using System;
-using System.Linq;
 using Grpc.Core;
 using Grpc.Net.Client.Balancer;
 using Grpc.Net.Client.Configuration;

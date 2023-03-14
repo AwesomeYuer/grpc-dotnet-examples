@@ -16,11 +16,9 @@
 
 #endregion
 
-using System.Threading.Tasks;
 using Count;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 
 namespace Server
 {

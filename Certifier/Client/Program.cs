@@ -16,15 +16,11 @@
 
 #endregion
 
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Certify;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.Security.Cryptography.X509Certificates;
 
 // The server will return 403 (Forbidden). The method requires a certificate
 await CallCertificateInfo(includeClientCertificate: false);

@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using Google.Protobuf.WellKnownTypes;
 
 namespace Weather

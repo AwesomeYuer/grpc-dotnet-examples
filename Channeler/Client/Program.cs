@@ -16,14 +16,11 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DataChannel;
 using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.Text;
 
 using var channel = GrpcChannel.ForAddress("https://localhost:5001");
 var client = new DataChanneler.DataChannelerClient(channel);

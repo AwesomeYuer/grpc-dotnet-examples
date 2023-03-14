@@ -16,9 +16,8 @@
 
 #endregion
 
-using System.ServiceModel;
-using System.Threading.Tasks;
 using ProtoBuf.Grpc;
+using System.ServiceModel;
 
 namespace Shared
 {
