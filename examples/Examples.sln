@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Certifier\Server\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certifier", "Certifier", "{BCD318F6-7275-4E19-93FB-493413B0F0DE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Certifier\Client\Client.csproj", "{C0E08CDF-97E9-46C6-94C8-583706ACCA34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{D3FF68BA-1A89-426F-B813-559348B632D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3FF68BA-1A89-426F-B813-559348B632D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3FF68BA-1A89-426F-B813-559348B632D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0E08CDF-97E9-46C6-94C8-583706ACCA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0E08CDF-97E9-46C6-94C8-583706ACCA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0E08CDF-97E9-46C6-94C8-583706ACCA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0E08CDF-97E9-46C6-94C8-583706ACCA34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +76,7 @@ Global
 		{5B3A8C4D-142A-470D-BAE8-A35B3BC7D79E} = {EFE8C773-6523-417F-BDFA-6B764C202569}
 		{A1F7CFC4-FE73-4B35-B228-9540E82EA2BE} = {86A161FE-9D63-4E6B-B8DF-20A9F6BF59F0}
 		{D3FF68BA-1A89-426F-B813-559348B632D4} = {BCD318F6-7275-4E19-93FB-493413B0F0DE}
+		{C0E08CDF-97E9-46C6-94C8-583706ACCA34} = {BCD318F6-7275-4E19-93FB-493413B0F0DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D22B3129-3BFB-41FA-9FCE-E45EBEF8C2DD}
