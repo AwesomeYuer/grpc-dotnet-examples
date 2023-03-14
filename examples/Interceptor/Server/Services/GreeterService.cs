@@ -17,63 +17,63 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Greet;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
-namespace Server
+namespace Server;
+
+public class GreeterService : Greeter.GreeterBase
 {
-    public class GreeterService : Greeter.GreeterBase
+    private readonly ILogger _logger;
+
+    public GreeterService(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        _logger = loggerFactory.CreateLogger<GreeterService>();
+    }
 
-        public GreeterService(ILoggerFactory loggerFactory)
+    public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
+    {
+        _logger.LogInformation($"Sending hello to {request.Name}");
+        return Task.FromResult(new HelloReply { Message = "Hello " + request.Name });
+    }
+
+    public override async Task SayHellos(HelloRequest request, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
+    {
+        var i = 0;
+        while (!context.CancellationToken.IsCancellationRequested)
         {
-            _logger = loggerFactory.CreateLogger<GreeterService>();
-        }
-
-        public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
-        {
-            _logger.LogInformation($"Sending hello to {request.Name}");
-            return Task.FromResult(new HelloReply { Message = "Hello " + request.Name });
-        }
-
-        public override async Task SayHellos(HelloRequest request, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
-        {
-            var i = 0;
-            while (!context.CancellationToken.IsCancellationRequested)
-            {
-                var message = $"How are you {request.Name}? {++i}";
-                _logger.LogInformation($"Sending greeting {message}.");
-
-                await responseStream.WriteAsync(new HelloReply { Message = message });
-
-                // Gotta look busy
-                await Task.Delay(1000);
-            }
-        }
-
-        public override async Task<HelloReply> SayHelloToLotsOfBuddies(IAsyncStreamReader<HelloRequest> requestStream, ServerCallContext context)
-        {
-            var names = new List<string>();
-            await foreach (var request in requestStream.ReadAllAsync())
-            {
-                names.Add(request.Name);
-            }
-
-            var message = $"Hello {string.Join(", ", names)}";
-
+            var message = $"How are you {request.Name}? {++i}";
             _logger.LogInformation($"Sending greeting {message}.");
-            return new HelloReply { Message = message };
+
+            await responseStream.WriteAsync(new HelloReply { Message = message });
+
+            // Gotta look busy
+            await Task.Delay(1000);
+        }
+    }
+
+    public override async Task<HelloReply> SayHelloToLotsOfBuddies(IAsyncStreamReader<HelloRequest> requestStream, ServerCallContext context)
+    {
+        var names = new List<string>();
+        await foreach (var request in requestStream.ReadAllAsync())
+        {
+            names.Add(request.Name);
         }
 
-        public override async Task SayHellosToLotsOfBuddies(IAsyncStreamReader<HelloRequest> requestStream, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
+        var message = $"Hello {string.Join(", ", names)}";
+
+        _logger.LogInformation($"Sending greeting {message}.");
+        return new HelloReply { Message = message };
+    }
+
+    public override async Task SayHellosToLotsOfBuddies(IAsyncStreamReader<HelloRequest> requestStream, IServerStreamWriter<HelloReply> responseStream, ServerCallContext context)
+    {
+        await foreach (var request in requestStream.ReadAllAsync())
         {
-            await foreach (var request in requestStream.ReadAllAsync())
-            {
-                await responseStream.WriteAsync(new HelloReply { Message = "Hello " + request.Name });
-            }
+            await responseStream.WriteAsync(new HelloReply { Message = "Hello " + request.Name });
         }
     }
 }
