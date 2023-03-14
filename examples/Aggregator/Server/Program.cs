@@ -18,25 +18,25 @@
 
 using Count;
 using Greet;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
+//using OpenTelemetry.Resources;
+//using OpenTelemetry.Trace;
 using Server;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc();
 builder.Services.AddSingleton<IncrementingCounter>();
 
-if (bool.TryParse(builder.Configuration["EnableOpenTelemetry"], out var enableOpenTelemetry) && enableOpenTelemetry)
-{
-    builder.Services.AddOpenTelemetryTracing(telemetry =>
-    {
-        telemetry.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("aggregator"));
-        telemetry.AddZipkinExporter();
-        telemetry.AddGrpcClientInstrumentation();
-        telemetry.AddHttpClientInstrumentation();
-        telemetry.AddAspNetCoreInstrumentation();
-    });
-}
+//if (bool.TryParse(builder.Configuration["EnableOpenTelemetry"], out var enableOpenTelemetry) && enableOpenTelemetry)
+//{
+//    builder.Services.AddOpenTelemetryTracing(telemetry =>
+//    {
+//        telemetry.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("aggregator"));
+//        telemetry.AddZipkinExporter();
+//        telemetry.AddGrpcClientInstrumentation();
+//        telemetry.AddHttpClientInstrumentation();
+//        telemetry.AddAspNetCoreInstrumentation();
+//    });
+//}
 
 // These clients will call back to the server
 builder.Services
