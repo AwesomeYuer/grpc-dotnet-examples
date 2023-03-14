@@ -16,6 +16,8 @@
 
 #endregion
 
+using System;
+using System.Net.Http;
 using Greet;
 using Grpc.Net.Client;
 
