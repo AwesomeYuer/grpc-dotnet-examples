@@ -16,10 +16,10 @@
 
 #endregion
 
-using System.Diagnostics;
 using Greet;
 using Grpc.Core;
 using Grpc.Net.Client;
+using System.Diagnostics;
 
 await MakeInternalCall("https://localhost:5001");
 try

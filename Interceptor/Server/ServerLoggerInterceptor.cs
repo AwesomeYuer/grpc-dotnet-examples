@@ -16,11 +16,8 @@
 
 #endregion
 
-using System;
-using System.Threading.Tasks;
 using Grpc.Core;
 using Grpc.Core.Interceptors;
-using Microsoft.Extensions.Logging;
 
 namespace Server;
 

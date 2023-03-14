@@ -16,12 +16,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Greet;
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 
 namespace Server;
 
