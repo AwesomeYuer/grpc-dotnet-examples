@@ -16,6 +16,8 @@
 
 #endregion
 
+using System;
+using System.Threading.Tasks;
 using Greet;
 using Grpc.Core;
 using Grpc.Net.Client;
