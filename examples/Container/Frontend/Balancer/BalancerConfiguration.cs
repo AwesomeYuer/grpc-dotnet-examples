@@ -1,4 +1,4 @@
-﻿#region Copyright notice and license
+#region Copyright notice and license
 
 // Copyright 2019 The gRPC Authors
 //
@@ -18,25 +18,24 @@
 
 using System;
 
-namespace Frontend.Balancer
+namespace Frontend.Balancer;
+
+public class BalancerConfiguration
 {
-    public class BalancerConfiguration
+    public event EventHandler? Updated;
+
+    public LoadBalancerName LoadBalancerPolicyName { get; private set; } = LoadBalancerName.PickFirst;
+
+    public void Update(LoadBalancerName loadBalancerPolicyName)
     {
-        public event EventHandler? Updated;
+        LoadBalancerPolicyName = loadBalancerPolicyName;
 
-        public LoadBalancerName LoadBalancerPolicyName { get; private set; } = LoadBalancerName.PickFirst;
-
-        public void Update(LoadBalancerName loadBalancerPolicyName)
-        {
-            LoadBalancerPolicyName = loadBalancerPolicyName;
-
-            Updated?.Invoke(this, EventArgs.Empty);
-        }
+        Updated?.Invoke(this, EventArgs.Empty);
     }
+}
 
-    public enum LoadBalancerName
-    {
-        RoundRobin,
-        PickFirst
-    }
+public enum LoadBalancerName
+{
+    RoundRobin,
+    PickFirst
 }
