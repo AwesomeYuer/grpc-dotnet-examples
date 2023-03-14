@@ -1,4 +1,4 @@
-﻿#region Copyright notice and license
+#region Copyright notice and license
 
 // Copyright 2019 The gRPC Authors
 //
@@ -16,66 +16,62 @@
 
 #endregion
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using Mail;
 
-namespace Server
+namespace Server;
+
+public record Mail(int Id, string Content);
+
+public record MailQueueChangeState(int TotalCount, int ForwardedCount, MailboxMessage.Types.Reason Reason);
+
+public class MailQueue
 {
-    public record Mail(int Id, string Content);
+    private readonly Channel<Mail> _incomingMail;
+    private int _totalMailCount;
+    private int _forwardedMailCount;
 
-    public record MailQueueChangeState(int TotalCount, int ForwardedCount, MailboxMessage.Types.Reason Reason);
+    public string Name { get; }
+    public event Func<MailQueueChangeState, Task>? Changed;
 
-    public class MailQueue
+    public MailQueue(string name)
     {
-        private readonly Channel<Mail> _incomingMail;
-        private int _totalMailCount;
-        private int _forwardedMailCount;
+        Name = name;
 
-        public string Name { get; }
-        public event Func<MailQueueChangeState, Task>? Changed;
+        _incomingMail = Channel.CreateUnbounded<Mail>();
 
-        public MailQueue(string name)
+        _ = Task.Run(async () =>
         {
-            Name = name;
+            var random = new Random();
 
-            _incomingMail = Channel.CreateUnbounded<Mail>();
-
-            _ = Task.Run(async () =>
+            while (true)
             {
-                var random = new Random();
+                _totalMailCount++;
+                var mail = new Mail(_totalMailCount, $"Message #{_totalMailCount}");
+                await _incomingMail.Writer.WriteAsync(mail);
+                OnChange(MailboxMessage.Types.Reason.Received);
 
-                while (true)
-                {
-                    _totalMailCount++;
-                    var mail = new Mail(_totalMailCount, $"Message #{_totalMailCount}");
-                    await _incomingMail.Writer.WriteAsync(mail);
-                    OnChange(MailboxMessage.Types.Reason.Received);
-
-                    await Task.Delay(TimeSpan.FromSeconds(random.Next(5, 15)));
-                }
-            });
-        }
-
-        public bool TryForwardMail([NotNullWhen(true)] out Mail? message)
-        {
-            if (_incomingMail.Reader.TryRead(out message))
-            {
-                Interlocked.Increment(ref _forwardedMailCount);
-                OnChange(MailboxMessage.Types.Reason.Forwarded);
-
-                return true;
+                await Task.Delay(TimeSpan.FromSeconds(random.Next(5, 15)));
             }
+        });
+    }
 
-            return false;
-        }
-
-        private void OnChange(MailboxMessage.Types.Reason reason)
+    public bool TryForwardMail([NotNullWhen(true)] out Mail? message)
+    {
+        if (_incomingMail.Reader.TryRead(out message))
         {
-            Changed?.Invoke(new MailQueueChangeState(_totalMailCount, _forwardedMailCount, reason));
+            Interlocked.Increment(ref _forwardedMailCount);
+            OnChange(MailboxMessage.Types.Reason.Forwarded);
+
+            return true;
         }
+
+        return false;
+    }
+
+    private void OnChange(MailboxMessage.Types.Reason reason)
+    {
+        Changed?.Invoke(new MailQueueChangeState(_totalMailCount, _forwardedMailCount, reason));
     }
 }
